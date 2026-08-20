@@ -14,7 +14,7 @@ fi
 
 files="$@"
 
-if [[ -z "${file:-}" ]]; then
+if [[ -z "${files:-}" ]]; then
   files=($HOME/.vscode-server/bin/*/node )
 fi
 
@@ -27,5 +27,15 @@ for exe in "${files[@]}"; do
   ${patchelf} --set-interpreter ${interpreter} "$exe"
   ${patchelf} --set-rpath "${lib_dir}" "$exe" --force-rpath
 done
+
+# Patch native modules loaded after Node starts, including node-pty and Copilot.
+mkdir -p /swwork/hbcc/commontools/glibc/2.30
+ln -sfn "$script_dir/glibc-2.30/lib" /swwork/hbcc/commontools/glibc/2.30/lib
+ln -sfn libutil-2.30.so "$script_dir/glibc-2.30/lib/libutil.so.1"
+for module in compat db dns files hesiod; do
+  ln -sfn "libnss_${module}-2.30.so" "$script_dir/glibc-2.30/lib/libnss_${module}.so.2"
+done
+ln -sfn libresolv-2.30.so "$script_dir/glibc-2.30/lib/libresolv.so.2"
+find "$HOME/.vscode-server/bin" -type f -name "*.node" -exec "$patchelf" --set-rpath "$lib_dir" {} --force-rpath \; 2>/dev/null || true
 
 echo "Succeeded to update glibc and libstdc++ of vscode server"
