@@ -1,5 +1,7 @@
 # VS Code Server Toolchain Workaround
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 Starting with VS Code release 1.86, the minimum requirements for the build toolchain of the remote server were raised. The prebuilt servers distributed by VS Code are compatible with Linux distributions based on glibc 2.28 or later.
 
 This toolkit provides a workaround for whose setup does not meet these requirements and you are unable to upgrade the Linux distribution but still want to update VS Code. It ensembles glibc, libstdc++ and patchelf.
